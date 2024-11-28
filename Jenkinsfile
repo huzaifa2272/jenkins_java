@@ -1,39 +1,33 @@
 pipeline {
     agent any
-    environment {
-        FLAG = true  // Set the flag to control stage execution
+
+    parameters {
+        string(name: 'VERSION', defaultValue: '', description: 'Version to deploy on prod') // String parameter
+        choice(name: 'VERSION_CHOICE', choices: ['1.1.0', '1.2.0', '1.3.0'], description: 'Choose version') // Choice parameter
+        booleanParam(name: 'executeTests', defaultValue: true, description: 'Run the Test Stage') // Boolean parameter
     }
+
+    environment {
+        NEW_VERSION = '1.3.0' // Example variable accessible to all stages
+    }
+
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
-                // Add your build commands here
+                echo "Building Project for Version: ${params.VERSION_CHOICE}"
             }
         }
+
         stage('Test') {
             when {
                 expression {
-                    return FLAG == true  // Only run this stage if FLAG is true
+                    // Check the 'executeTests' parameter
+                    params.executeTests
                 }
             }
             steps {
-                echo 'Testing...'
-                // Add your test commands here
+                echo 'Testing Project...'
             }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying...'
-                // Add your deployment commands here
-            }
-        }
-    }
-    post {
-        always {
-            echo 'Post build condition running'
-        }
-        failure {
-            echo 'Post action if build failed'
         }
     }
 }
