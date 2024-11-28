@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    environment {
+        FLAG = true  // Set the flag to control stage execution
+    }
     stages {
         stage('Build') {
             steps {
@@ -8,14 +10,17 @@ pipeline {
                 // Add your build commands here
             }
         }
-
         stage('Test') {
+            when {
+                expression {
+                    return FLAG == true  // Only run this stage if FLAG is true
+                }
+            }
             steps {
                 echo 'Testing...'
                 // Add your test commands here
             }
         }
-
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
@@ -23,26 +28,12 @@ pipeline {
             }
         }
     }
-
     post {
         always {
-            echo 'This runs regardless of build success or failure.'
-        }
-        success {
-            echo 'Build succeeded!'
-            // Add actions to perform on a successful build, such as notifications
+            echo 'Post build condition running'
         }
         failure {
-            echo 'Build failed!'
-            // Add actions to perform on a failed build, such as error reporting
-        }
-        unstable {
-            echo 'Build is unstable!'
-            // Add actions for unstable builds if necessary
-        }
-        aborted {
-            echo 'Build was aborted!'
-            // Add actions for aborted builds
+            echo 'Post action if build failed'
         }
     }
 }
